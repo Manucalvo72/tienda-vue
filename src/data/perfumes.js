@@ -20,7 +20,7 @@ const basePerfumes = [
     categoria: "perfume",
     aroma: ["fuerte", "picante"],
     sexo: "masculino",
-    imagen: "/img/perfumes/sauvage.png",
+    imagen: "",
     descripcion: "Aroma intenso y moderno"
   },
 ]

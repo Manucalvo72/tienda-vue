@@ -5,8 +5,9 @@
   <ul class="nav-links">
     <li><RouterLink to="/">Inicio</RouterLink></li>
     <li><RouterLink to="/catalogo">Catalogo</RouterLink></li>
-    <li><RouterLink to="/conocenos">Conócenos</RouterLink></li>
-    <li><RouterLink to="/contacto">Contacto</RouterLink></li>
+     <div class="carrito-btn" @click="$emit('abrir-carrito')">
+      🛒 <span v-if="totalItems">{{ totalItems }}</span>
+    </div>
   </ul>
 </nav>
   </template>
@@ -81,13 +82,20 @@
   
 
 <script >
- 
+ import { useCarritoStore } from '@/stores/carrito'
+
+
 export default {
   methods: {
     toHome() {
             this.$router.push('/')
         }
+  },
+  setup() {
+    const carrito = useCarritoStore()
+    return { totalItems: carrito.totalItems }
   }
 }
+
 
 </script>

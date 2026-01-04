@@ -31,7 +31,7 @@
           <li v-if="producto.aroma">Aroma: {{ producto.aroma.join(", ") }}</li>
         </ul>
 
-        <button class="agregar">
+        <button class="agregar" @click="agregar">
           Agregar al carrito
         </button>
 
@@ -45,12 +45,20 @@
 <script>
 import { perfumes } from "@/data/perfumes"
 import { maquillaje } from "@/data/maquillaje"
-
+import { useCarritoStore } from '@/stores/carrito'
 const todos = [...perfumes, ...maquillaje]
 
 export default {
-  props: ["tipo", "slug"],
+ props: ["tipo", "slug", "producto"],
+  setup(props) {
+    const carrito = useCarritoStore()
 
+    const agregar = () => {
+      carrito.agregarProducto(props.producto)
+    }
+
+    return { agregar }
+  },
   computed: {
     producto() {
       return todos.find(
