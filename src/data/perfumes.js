@@ -4,6 +4,7 @@ import { slugify } from "@/data/slugify"
 
 const basePerfumes = [
   {
+    
     nombre: "La Vie Est Belle",
     marca: "Lancôme",
     precio: 85000,

@@ -59,7 +59,7 @@
     <img class="img-card" :src="p.imagen" />
     <h3>{{ p.nombre }}</h3>
     <p class="precio">${{ p.precio }}</p>
-    <button class="ver" @click="$router.push(`/producto/${p.id}`)">
+    <button class="ver" >
   Ver producto
 </button>
   </div>

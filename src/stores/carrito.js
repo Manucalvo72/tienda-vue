@@ -6,12 +6,16 @@ export const useCarritoStore = defineStore('carrito', {
   }),
 
   getters: {
-    totalItems(state) {
-      return state.items.reduce((acc, item) => acc + item.cantidad, 0)
-    },
     totalPrecio(state) {
       return state.items.reduce(
-        (acc, item) => acc + item.precio * item.cantidad,
+        (total, item) => total + item.precio * item.cantidad,
+        0
+      )
+    },
+
+    totalCantidad(state) {
+      return state.items.reduce(
+        (total, item) => total + item.cantidad,
         0
       )
     }
@@ -19,17 +23,27 @@ export const useCarritoStore = defineStore('carrito', {
 
   actions: {
     agregarProducto(producto) {
-      const existente = this.items.find(p => p.id === producto.id)
+      if (!producto || !producto.id) return
+
+      const existente = this.items.find(
+        item => item.id === producto.id
+      )
 
       if (existente) {
         existente.cantidad++
       } else {
-        this.items.push({ ...producto, cantidad: 1 })
+        this.items.push({
+          id: producto.id,
+          nombre: producto.nombre,
+          precio: producto.precio,
+          imagen: producto.imagen,
+          cantidad: 1
+        })
       }
     },
 
     restarProducto(id) {
-      const item = this.items.find(p => p.id === id)
+      const item = this.items.find(i => i.id === id)
       if (!item) return
 
       if (item.cantidad > 1) {
@@ -40,11 +54,11 @@ export const useCarritoStore = defineStore('carrito', {
     },
 
     eliminarProducto(id) {
-      this.items = this.items.filter(p => p.id !== id)
-    },
-
-    vaciarCarrito() {
-      this.items = []
+      this.items = this.items.filter(
+        item => item.id !== id
+      )
     }
   }
 })
+
+

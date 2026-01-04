@@ -1,73 +1,69 @@
 <template>
-  <div v-if="producto" class="producto-view">
+  <div v-if="productoActual" class="producto-view">
 
     <div class="producto-card">
-
-      <!-- IMAGEN -->
       <div class="imagen">
-        <img :src="producto.imagen" :alt="producto.nombre" />
+        <img :src="productoActual.imagen" />
       </div>
 
-      <!-- INFO -->
       <div class="info">
-        <h1>{{ producto.nombre }}</h1>
-        <p class="marca">{{ producto.marca }}</p>
+        <h1>{{ productoActual.nombre }}</h1>
+        <p class="marca">{{ productoActual.marca }}</p>
 
-        <p class="precio">
-          ${{ producto.precio }}
-        </p>
+        <p class="precio">$ {{ productoActual.precio }}</p>
 
         <p class="precio-sin-imp">
-          Precio sin impuestos: ${{ precioSinImpuestos }}
+          Precio sin impuestos: $ {{ precioSinImpuestos }}
         </p>
 
         <p class="descripcion">
-          {{ producto.descripcion }}
+          {{ productoActual.descripcion }}
         </p>
 
-        <!-- DATOS EXTRA -->
-        <ul class="datos">
-          <li v-if="producto.sexo">Sexo: {{ producto.sexo }}</li>
-          <li v-if="producto.aroma">Aroma: {{ producto.aroma.join(", ") }}</li>
-        </ul>
-
-        <button class="agregar" @click="agregar">
+        <button class="agregar" @click="agregarAlCarrito">
           Agregar al carrito
         </button>
-
       </div>
     </div>
 
   </div>
 </template>
 
-
 <script>
-import { perfumes } from "@/data/perfumes"
-import { maquillaje } from "@/data/maquillaje"
+import { perfumes } from '@/data/perfumes'
+import { maquillaje } from '@/data/maquillaje'
 import { useCarritoStore } from '@/stores/carrito'
+
 const todos = [...perfumes, ...maquillaje]
 
 export default {
- props: ["tipo", "slug", "producto"],
-  setup(props) {
-    const carrito = useCarritoStore()
+  name: 'ProductoView',
 
-    const agregar = () => {
-      carrito.agregarProducto(props.producto)
-    }
+  props: ['tipo', 'slug'],
 
-    return { agregar }
-  },
   computed: {
-    producto() {
+    productoActual() {
       return todos.find(
         p => p.tipo === this.tipo && p.slug === this.slug
       )
+    },
+
+    precioSinImpuestos() {
+      if (!this.productoActual) return 0
+      return Math.round(this.productoActual.precio / 1.21)
+    }
+  },
+
+  methods: {
+    agregarAlCarrito() {
+      const carrito = useCarritoStore()
+      carrito.agregarProducto(this.productoActual)
     }
   }
 }
 </script>
+
+
 
 
 
