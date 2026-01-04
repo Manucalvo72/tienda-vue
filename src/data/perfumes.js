@@ -11,7 +11,7 @@ const basePerfumes = [
     categoria: "perfume",
     aroma: ["dulce", "vainilla"],
     sexo: "femenino",
-    imagen: require("@/assets/img/perfumes/file.png"),
+    imagen: "",
     descripcion: "Fragancia dulce y elegante"
   },
   {

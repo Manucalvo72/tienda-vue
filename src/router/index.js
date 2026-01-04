@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ProductoView from "@/views/ProductoView.vue"
-import Carrito from '@/components/Carrito.vue'
+import Carrito from '@/views/Carrito.vue'
 
 const routes = [
   {
@@ -25,7 +25,7 @@ const routes = [
   path: "/carrito",
   name: 'carrito',
   component: Carrito,
-   meta: { title: 'Carrito' }
+   
 }
 ]
 

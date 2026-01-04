@@ -57,17 +57,20 @@ export default {
   methods: {
     agregarAlCarrito() {
       const carrito = useCarritoStore()
+      if (!this.productoActual) {
+        console.warn('[ProductoView] Producto actual no definido')
+        return
+      }
+      // Log para comprobar que el click llega al store
+      console.log('[ProductoView] agregando producto:', this.productoActual)
       carrito.agregarProducto(this.productoActual)
     }
   }
 }
 </script>
 
-
-
-
-
 <style scoped>
+/* (estilos sin cambios) */
 .producto-view {
   min-height: 100vh;
   background-color: #0f0f0f;

@@ -42,23 +42,29 @@ export const useCarritoStore = defineStore('carrito', {
       }
     },
 
+    // Ahora restarProducto deja la cantidad en 0 en vez de eliminar el objeto.
     restarProducto(id) {
       const item = this.items.find(i => i.id === id)
       if (!item) return
 
-      if (item.cantidad > 1) {
+      if (item.cantidad > 0) {
         item.cantidad--
-      } else {
-        this.eliminarProducto(id)
       }
+      // NO eliminamos el objeto cuando llega a 0 (el usuario podrá ver
+      // el producto con cantidad 0 y eliminarlo explícitamente si quiere)
     },
 
     eliminarProducto(id) {
       this.items = this.items.filter(
         item => item.id !== id
       )
+    },
+
+    // Utilidad: permite fijar cantidad arbitraria (p. ej. para un input)
+    setCantidad(id, cantidad) {
+      const item = this.items.find(i => i.id === id)
+      if (!item) return
+      item.cantidad = Math.max(0, Math.floor(cantidad))
     }
   }
 })
-
-

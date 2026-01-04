@@ -1,20 +1,18 @@
 <template>
-    <nav class="navbar">
-  <img src="" alt="logo" class="logo" @click="toHome">
+  <nav class="navbar">
+    <img src="" alt="logo" class="logo" @click="toHome">
 
-  <ul class="nav-links">
-    <li><RouterLink to="/">Inicio</RouterLink></li>
-    <li><RouterLink to="/catalogo">Catalogo</RouterLink></li>
-     <div class="carrito-btn" @click="$emit('abrir-carrito')">
-      🛒 <span v-if="totalItems">{{ totalItems }}</span>
-    </div>
-  </ul>
-</nav>
-  </template>
-  
-  <style scoped>
+    <ul class="nav-links">
+      <li><RouterLink to="/">Inicio</RouterLink></li>
+      <li><RouterLink to="/catalogo">Catalogo</RouterLink></li>
+      <div class="carrito-btn" @click="toCarrito">
+        🛒 <span v-if="totalItems">{{ totalItems }}</span>
+      </div>
+    </ul>
+  </nav>
+</template>
 
-
+<style scoped>
  .navbar {
   background-color: #1a1a1a;
   display: flex;
@@ -75,27 +73,26 @@
 .router-link-active::after {
   width: 100%;
 }
+</style>
 
-
-
-  </style>
-  
-
-<script >
- import { useCarritoStore } from '@/stores/carrito'
-
+<script>
+import { computed } from 'vue'
+import { useCarritoStore } from '@/stores/carrito'
 
 export default {
   methods: {
     toHome() {
-            this.$router.push('/')
-        }
+      this.$router.push('/')
+    },
+    toCarrito() {
+      this.$router.push("/carrito")
+    }
   },
   setup() {
     const carrito = useCarritoStore()
-    return { totalItems: carrito.totalItems }
+    // Devolver un computed para mantener la reactividad en la plantilla
+    const totalItems = computed(() => carrito.totalCantidad)
+    return { totalItems }
   }
 }
-
-
 </script>
