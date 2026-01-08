@@ -1,11 +1,16 @@
 <template>
   <!-- BANNER -->
   <section class="hero">
-    <div class="hero-content">
-      <h1>Perfumes que dejan huella</h1>
-      <p>Fragancias exclusivas para cada estilo</p>
-    </div>
-  </section>
+  <div class="hero-content">
+    <span class="hero-eyebrow">Nueva colección</span>
+    <h1 class="hero-title">27:9 Bagues</h1>
+
+    <span class="hero-badge">
+     Fragancias, maquillaje y cuidado para vos
+    </span>
+     <button class="hero-cta">Explorar productos</button>
+  </div>
+</section>
 
   <!-- PRODUCTOS DESTACADOS -->
   <section class="productos-home">
@@ -77,26 +82,27 @@ anterior() {
 /* ===== BANNER ===== */
 .hero {
   background: linear-gradient(
-      rgba(0, 0, 0, 0.65),
-      rgba(0, 0, 0, 0.65)
+      rgba(0, 0, 0, 0.55),
+      rgba(0, 0, 0, 0.15)
     ),
-    url("") center / cover no-repeat;
-  height: 380px;
+    url("../assets/img/banner1.jpg") center / cover no-repeat;
+  height: 420px;
   display: flex;
   align-items: center;
   padding: 0 60px;
+    
 }
 
 .hero-content h1 {
   color: #f5f5f5;
-  font-size: 42px;
-  font-weight: 500;
-  margin-bottom: 12px;
+ font-size: 48px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .hero-content p {
-  color: #9a9a9a;
-  font-size: 16px;
+    color: rgba(255,255,255,0.85);
+  font-size: 17px;
   max-width: 420px;
 }
 
@@ -128,6 +134,19 @@ anterior() {
   .productos-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+    .hero {
+    height: 360px;
+    padding: 0 24px;
+  }
+
+  .hero-title {
+    font-size: 56px;
+  }
+
+  .hero-content {
+    margin-left: 0;
+  }
+
 }
 
 /* ===== CARD ===== */
@@ -268,4 +287,92 @@ anterior() {
   width: 100%;
 }
 
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-left: 40px;
+  max-width: 520px;
+  animation: heroFade 0.9s ease forwards;
+}
+
+@keyframes heroFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* TÍTULO GRANDE */
+.hero-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 88px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+  letter-spacing: -1px;
+   text-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+/* CAJITA DE COLOR */
+.hero-badge {
+  width: fit-content;
+  background-color: #a4133c;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 18px;
+  border-radius: 999px; /* pill */
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.hero-cta {
+  margin-top: 12x;
+  padding: 14px 38px;
+
+  background: transparent;
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+
+  border: 1px solid rgba(255, 255, 255);
+  border-radius: 2px; /* casi cuadrado */
+  text-shadow: 0 2px 10px rgba(0,0,0,0.45);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+
+.hero-cta:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #ffffff;
+}
+
+.hero-eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  width: fit-content;
+
+  background: linear-gradient(
+    90deg,
+    #ff8fab,
+    #f72585,
+    #c9184a
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow: 0 0 18px rgba(247, 37, 133, 0.35);
+}
 </style>

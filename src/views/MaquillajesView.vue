@@ -1,11 +1,10 @@
 <template>
   <section class="catalogo">
     <!-- 🔎 BUSCADOR + BOTÓN FILTROS -->
-       <h2 class="titulo">Perfumes</h2>
     <div class="top-bar">
       <input
         type="text"
-        placeholder="Buscar perfume..."
+        placeholder="Buscar maquillaje..."
         v-model="busqueda"
       />
       <button @click="mostrarFiltros = !mostrarFiltros">
@@ -24,20 +23,20 @@
     <!-- 🎛 PANEL DE FILTROS -->
     <div v-if="mostrarFiltros" class="filtros">
       <div class="grupo">
-        <h4>Sexo</h4>
-        <label v-for="s in sexos" :key="s">
-          <input type="checkbox" :value="s" v-model="filtros.sexo" />
-          {{ s }}
+        <h4>Categoría</h4>
+        <label v-for="c in categorias" :key="c">
+          <input type="checkbox" :value="c" v-model="filtros.categoria" />
+          {{ c }}
         </label>
       </div>
 
       <div class="grupo">
-        <h4>Aroma</h4>
-        <label v-for="a in aromas" :key="a">
-          <input type="checkbox" :value="a" v-model="filtros.aroma" />
-          {{ a }}
-        </label>
-      </div>
+  <h4>Tipo</h4>
+  <label v-for="t in tipos" :key="t">
+    <input type="checkbox" :value="t" v-model="filtros.tipo" />
+    {{ t }}
+  </label>
+</div>
 
       <div class="grupo">
         <h4>Marca</h4>
@@ -48,22 +47,22 @@
       </div>
     </div>
 
-        
-    <div class="grid">
+    <!-- GRID DE PRODUCTOS -->
+   <div class="grid">
   <RouterLink
-  v-for="p in productosFiltrados"
-  :key="p.slug"
-  :to="`/producto/${p.tipo}/${p.slug}`"
-  class="card-link"
->
-  <div class="card">
-  <img class="img-card" :src="p.imagen" />
+    v-for="p in productosFiltrados"
+    :key="p.slug"
+    :to="`/producto/${p.tipo || 'maquillaje'}/${p.slug}`"
 
-  <h3>{{ p.nombre }}</h3>
-  <p class="marca">{{ p.marca }}</p>
-  <p class="precio">${{ p.precio }}</p>
+    class="card-link"
+  >
+    <div class="card">
+      <img class="img-card" :src="p.imagen" />
+      <h3>{{ p.nombre }}</h3>
+      <p class="marca">{{ p.marca }}</p>
+      <p class="precio">${{ p.precio }}</p>
 
-  <div class="acciones">
+<div class="acciones">
   <button
     class="agregar"
     @click.stop.prevent="agregarAlCarrito(p)"
@@ -75,8 +74,8 @@
     Ver producto
   </button>
 </div>
-</div>
-</RouterLink>
+    </div>
+  </RouterLink>
 </div>
 
 
@@ -87,85 +86,87 @@
 </template>
 
 <script>
-import { perfumes} from "@/data/perfumes"
+import { maquillajes } from "../data/maquillajes"
 import { useCarritoStore } from "@/stores/carrito"
 
 export default {
-  name: "CatalogoView",
+  name: "MaquillajesView",
+ data() {
+  return {
+    busqueda: "",
+    mostrarFiltros: false,
 
-  data() {
-    return {
-      busqueda: "",
-      mostrarFiltros: false,
+    filtros: {
+      categoria: [],
+      marca: [],
+      tipo: []
+    },
 
-      filtros: {
-        sexo: [],
-        aroma: [],
-        marca: []
-      },
-
-      sexos: ["masculino", "femenino", "unisex"],
-      aromas: ["fresco", "vainilla", "dulce", "picante"],
-      marcas: ["Dior", "Carolina Herrera", "Paco Rabanne"]
-    }
-  },
+    categorias: ["rostro", "rubores", "polvos", "ojos", "labios"],
+    marcas: Array.from(new Set(maquillajes.map(p => p.marca))),
+    tipos: Array.from(
+  new Set(maquillajes.map(p => p.tipo).filter(t => t)) // ⚡ filtra los vacíos
+)
+  }
+},
 
   computed: {
     productosFiltrados() {
-      let lista = [...perfumes] // Usamos directamente los productos importados
+      let lista = [...maquillajes]
 
+      // filtro por busqueda
       if (this.busqueda.trim()) {
         lista = lista.filter(p =>
           p.nombre.toLowerCase().includes(this.busqueda.toLowerCase())
         )
       }
 
-      if (this.filtros.sexo.length) {
+      // filtro por categoria
+      if (this.filtros.categoria.length) {
         lista = lista.filter(p =>
-          this.filtros.sexo.includes(p.sexo)
+          this.filtros.categoria.includes(p.categoria)
         )
       }
 
-      if (this.filtros.aroma.length) {
-        lista = lista.filter(p =>
-          p.aroma.some(a => this.filtros.aroma.includes(a))
-        )
-      }
-
+      // filtro por marca
       if (this.filtros.marca.length) {
         lista = lista.filter(p =>
           this.filtros.marca.includes(p.marca)
         )
       }
 
+      if (this.filtros.tipo.length) {
+  lista = lista.filter(p =>
+    this.filtros.tipo.includes(p.tipo)
+  )
+}
+
       return lista
     },
 
-    hayFiltrosActivos() {
-      return (
-        this.filtros.sexo.length ||
-        this.filtros.aroma.length ||
-        this.filtros.marca.length
-      )
-    },
-    
+   hayFiltrosActivos() {
+  return (
+    this.filtros.categoria.length ||
+    this.filtros.marca.length ||
+    this.filtros.tipo.length
+  )
+},
   },
 
   methods: {
-    limpiarFiltros() {
-      this.filtros.sexo = []
-      this.filtros.aroma = []
-      this.filtros.marca = []
-      this.busqueda = ""
-    },
-      agregarAlCarrito(producto) {
+   limpiarFiltros() {
+  this.filtros.categoria = []
+  this.filtros.marca = []
+  this.filtros.tipo = []
+  this.busqueda = ""
+},
+  agregarAlCarrito(producto) {
     const carrito = useCarritoStore()
     carrito.agregarProducto(producto)
   }
   }
 }
 </script>
-
 
 <style scoped>
 .catalogo {
@@ -228,10 +229,12 @@ export default {
   border: 1px solid rgba(255,255,255,0.06);
   padding: 20px;
   margin-bottom: 36px;
+
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 24px;
 }
+
 
 .grupo h4 {
   font-size: 14px;
@@ -264,10 +267,10 @@ export default {
   background-color: #151515;
   border: 1px solid rgba(255,255,255,0.06);
   padding: 20px;
-
   display: flex;
   flex-direction: column;
-
+  justify-content: space-between;
+  transition: 0.35s ease;
   min-height: 420px;
 }
 .card-link {
@@ -335,8 +338,14 @@ export default {
   background-color: #0f0f0f;
 }
 
+.acciones {
+  margin-top: auto; /* 🔥 empuja los botones al fondo */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .agregar {
-  margin-top: 12px;
   border: 1px solid #555;
   background: none;
   color: #ccc;
@@ -349,19 +358,7 @@ export default {
   background-color: #555;
   color: #fff;
 }
-.acciones {
-  margin-top: auto; /* 🔥 empuja los botones al fondo */
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
 
-.titulo {
-  font-size: 30px;
-  margin-bottom: 24px;
-  color: #c9184a;
-  letter-spacing: 1px;
-}
 
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {
@@ -369,5 +366,4 @@ export default {
     padding: 30px 20px;
   }
 }
-
 </style>
