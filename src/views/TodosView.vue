@@ -2,6 +2,7 @@
   <section class="catalogo">
     <!-- 🧾 TÍTULO -->
     <h2 class="titulo">Todos los productos</h2>
+    
 
     <!-- 🔎 BUSCADOR -->
     <div class="top-bar">
@@ -197,4 +198,14 @@ export default {
   margin-top: 60px;
   color: #777;
 }
+.subtitulo {
+  margin-top: -10px;
+  margin-bottom: 36px;
+  font-size: 14px;
+  color: #999;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
 </style>

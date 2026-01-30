@@ -1,5 +1,20 @@
 import { defineStore } from 'pinia'
 
+function normalizarPrecio(valor) {
+  if (typeof valor === 'string') {
+    return Number(valor.replace(/\./g, '').replace(',', '.'))
+  }
+  return valor
+}
+
+function obtenerPrecioReal(item) {
+  const base = item.precioOferta && item.precioOferta > 0
+    ? item.precioOferta
+    : item.precio
+
+  return normalizarPrecio(base)
+}
+
 export const useCarritoStore = defineStore('carrito', {
   state: () => ({
     items: []
@@ -8,7 +23,7 @@ export const useCarritoStore = defineStore('carrito', {
   getters: {
     totalPrecio(state) {
       return state.items.reduce(
-        (total, item) => total + item.precio * item.cantidad,
+        (total, item) => total + obtenerPrecioReal(item) * item.cantidad,
         0
       )
     },
@@ -23,11 +38,7 @@ export const useCarritoStore = defineStore('carrito', {
 
   actions: {
     agregarProducto(producto) {
-      if (!producto || !producto.id) return
-
-      const existente = this.items.find(
-        item => item.id === producto.id
-      )
+      const existente = this.items.find(i => i.id === producto.id)
 
       if (existente) {
         existente.cantidad++
@@ -36,31 +47,24 @@ export const useCarritoStore = defineStore('carrito', {
           id: producto.id,
           nombre: producto.nombre,
           precio: producto.precio,
+          precioOferta: producto.precioOferta,
           imagen: producto.imagen,
+          marca: producto.marca,
           cantidad: 1
         })
       }
     },
 
-    // Ahora restarProducto deja la cantidad en 0 en vez de eliminar el objeto.
     restarProducto(id) {
       const item = this.items.find(i => i.id === id)
       if (!item) return
-
-      if (item.cantidad > 0) {
-        item.cantidad--
-      }
-      // NO eliminamos el objeto cuando llega a 0 (el usuario podrá ver
-      // el producto con cantidad 0 y eliminarlo explícitamente si quiere)
+      if (item.cantidad > 0) item.cantidad--
     },
 
     eliminarProducto(id) {
-      this.items = this.items.filter(
-        item => item.id !== id
-      )
+      this.items = this.items.filter(item => item.id !== id)
     },
 
-    // Utilidad: permite fijar cantidad arbitraria (p. ej. para un input)
     setCantidad(id, cantidad) {
       const item = this.items.find(i => i.id === id)
       if (!item) return

@@ -2,6 +2,7 @@
   <section class="catalogo">
     <!-- 🔓 TÍTULO -->
     <h2 class="titulo">Unlock Collection</h2>
+    <p class="subtitulo">Conoce la coleccion de maxima calidad</p>
 
     <!-- 🔎 BUSCADOR -->
     <div class="top-bar">
@@ -97,6 +98,16 @@ export default {
   margin-bottom: 24px;
   color: #c9184a;
   letter-spacing: 1px;
+}
+
+.subtitulo {
+  margin-top: -10px;
+  margin-bottom: 36px;
+  font-size: 14px;
+  color: #999;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-weight: 400;
 }
 
 /* BUSCADOR */

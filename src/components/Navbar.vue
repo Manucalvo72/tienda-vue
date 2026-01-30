@@ -2,57 +2,108 @@
   <nav class="navbar">
     <img src="" alt="logo" class="logo" @click="toHome">
 
-    <ul class="nav-links">
-      <li><RouterLink to="/">Inicio</RouterLink></li>
-      <li><RouterLink to="/catalogo">Catalogo</RouterLink></li>
-      <li><router-link to="/maquillajes">Maquillajes</router-link></li>
-      <li><router-link to="/perfumes">Perfumes</router-link></li>
-      <li><router-link to="/unlock">Unlock</router-link></li>
-      <li><router-link to="/skincare">Skincare</router-link></li>
-      <li><router-link to="/esencias">Esencias</router-link></li>
-     <div class="carrito-btn" @click="toCarrito">
-  <i class="fa-solid fa-cart-shopping"></i>
+    <!-- Botón hamburguesa (mobile) -->
+    <div class="menu-toggle" @click="menuAbierto = !menuAbierto">
+      <span :class="{ open: menuAbierto }"></span>
+      <span :class="{ open: menuAbierto }"></span>
+      <span :class="{ open: menuAbierto }"></span>
+    </div>
 
-  <span
-    v-if="totalItems"
-    class="badge"
-    :key="textoBadge"
-  >
-    {{ textoBadge }}
-  </span>
-</div>
+    <ul class="nav-links" :class="{ mobileOpen: menuAbierto }">
+      <li><RouterLink to="/" @click="menuAbierto = false">Inicio</RouterLink></li>
+      <li><RouterLink to="/catalogo" @click="menuAbierto = false">Catálogo</RouterLink></li>
+      <li><RouterLink to="/maquillajes" @click="menuAbierto = false">Maquillajes</RouterLink></li>
+      <li><RouterLink to="/perfumes" @click="menuAbierto = false">Perfumes</RouterLink></li>
+      <li><RouterLink to="/unlock" @click="menuAbierto = false">Unlock</RouterLink></li>
+      <li><RouterLink to="/skincare" @click="menuAbierto = false">Skincare</RouterLink></li>
+      <li><RouterLink to="/esencias" @click="menuAbierto = false">Esencias</RouterLink></li>
 
+      <div class="carrito-btn mobile-carrito" @click="toCarrito">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span v-if="totalItems" class="badge">{{ textoBadge }}</span>
+      </div>
     </ul>
-    <div class="buscador">
-  <input
-    type="text"
-    placeholder="Buscar productos..."
-    v-model="query"
-    @focus="activo = true"
-    @blur="cerrar"
-  />
 
-  <ul v-if="activo && sugerencias.length" class="sugerencias">
-    <li
-  v-for="p in sugerencias"
-  :key="p.id"
-  @mousedown.prevent="irProducto(p)"
->
-  <img :src="p.imagen" class="thumb" />
+    <!-- Buscador (solo desktop) -->
+    <div class="buscador desktop">
+      <input
+        type="text"
+        placeholder="Buscar productos..."
+        v-model="query"
+        @focus="activo = true"
+        @blur="cerrar"
+      />
 
-  <div class="info">
-    <span class="nombre">{{ p.nombre }}</span>
-    <span class="tipo">{{ p.tipo }}</span>
-  </div>
-</li>
-
-  </ul>
-</div>
+      <ul v-if="activo && sugerencias.length" class="sugerencias">
+        <li v-for="p in sugerencias" :key="p.id" @mousedown.prevent="irProducto(p)">
+          <img :src="p.imagen" class="thumb" />
+          <div class="info">
+            <span class="nombre">{{ p.nombre }}</span>
+            <span class="tipo">{{ p.tipo }}</span>
+          </div>
+        </li>
+      </ul>
+    </div>
   </nav>
 </template>
 
+<script>
+import { computed } from 'vue'
+import { useCarritoStore } from '@/stores/carrito'
+import { productos } from "@/data/productos"
+
+export default {
+  data() {
+    return {
+      query: "",
+      activo: false,
+      menuAbierto: false
+    }
+  },
+  methods: {
+    toHome() {
+      this.$router.push('/')
+      this.menuAbierto = false
+    },
+    toCarrito() {
+      this.$router.push("/carrito")
+      this.menuAbierto = false
+    },
+    irProducto(p) {
+      this.query = ""
+      this.activo = false
+      this.menuAbierto = false
+      this.$router.push(`/producto/${p.tipo}/${p.slug}`)
+    },
+    cerrar() {
+      setTimeout(() => (this.activo = false), 150)
+    }
+  },
+  computed: {
+    sugerencias() {
+      if (!this.query.trim()) return []
+      const q = this.query.toLowerCase()
+      return productos
+        .filter(p =>
+          p.nombre.toLowerCase().startsWith(q) ||
+          p.marca?.toLowerCase().startsWith(q)
+        )
+        .slice(0, 6)
+    },
+    textoBadge() {
+      return this.totalItems > 9 ? '9+' : this.totalItems
+    }
+  },
+  setup() {
+    const carrito = useCarritoStore()
+    const totalItems = computed(() => carrito.totalCantidad)
+    return { totalItems }
+  }
+}
+</script>
+
 <style scoped>
- .navbar {
+.navbar {
   background-color: #1a1a1a;
   display: flex;
   align-items: center;
@@ -73,9 +124,9 @@
   list-style: none;
   display: flex;
   gap: 32px;
-
-  margin-left: 120px; /* AJUSTÁ ESTE VALOR */
+  margin-left: 120px;
 }
+
 .nav-links a {
   position: relative;
   text-decoration: none;
@@ -86,7 +137,6 @@
   font-family: "Inter", sans-serif;
 }
 
-/* Hover elegante */
 .nav-links a::after {
   content: "";
   position: absolute;
@@ -99,7 +149,7 @@
 }
 
 .nav-links a:hover {
-  color: #c9184a; ;
+  color: #c9184a;
 }
 
 .nav-links a:hover::after {
@@ -114,10 +164,33 @@
   width: 100%;
 }
 
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.menu-toggle span {
+  width: 26px;
+  height: 2px;
+  background: #f5f5f5;
+  transition: all 0.3s ease;
+}
+
+.menu-toggle span.open:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.menu-toggle span.open:nth-child(2) {
+  opacity: 0;
+}
+.menu-toggle span.open:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
 
 .buscador {
   position: relative;
-  width: 260px; /* mismo ancho para input y sugerencias */
+  width: 260px;
 }
 
 .buscador input {
@@ -125,59 +198,47 @@
   border-radius: 8px;
   background: #141414;
   border: 1px solid rgba(255,255,255,0.15);
-  transition: border 0.2s ease;
-   width: 100%;
-   color: #f5f5f5;
-   caret-color: #c9184a;
+  width: 100%;
+  color: #f5f5f5;
 }
-.buscador input::placeholder {
-  color: #888;
-}
-
 .buscador input:focus {
+  border-color: #c9184a;
+  box-shadow: 0 0 12px rgba(201, 24, 58, 0.45);
   outline: none;
-  border-color: #a4133c;
 }
-
 .sugerencias {
-    position: absolute;
+  position: absolute;
   top: 115%;
   left: 0;
   width: 100%;
   background: #1c1c1c;
   border-radius: 10px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-  z-index: 200;
-    list-style: none;
+  list-style: none;
   padding: 0;
   margin: 0;
+  z-index: 200;
+  
 }
 
-/* Item */
 .sugerencias li {
   padding: 10px 14px;
-  cursor: pointer;
   display: flex;
-  align-items: center;
   gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  transition: background 0.2s ease;
-   box-sizing: border-box;
+  cursor: pointer;
+  border: 1px solid #a4133c;
 }
 
 .thumb {
   width: 38px;
   height: 38px;
-  object-fit: cover;
   border-radius: 6px;
-  background: #111;
-  flex-shrink: 0;
+  object-fit: cover;
 }
 
 .info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
 
 .nombre {
@@ -186,37 +247,20 @@
 }
 
 .tipo {
-  font-size: 11px;
+  font-size: 12px;
   color: #c9184a;
-  text-transform: capitalize;
+  background: linear-gradient(90deg, #ff8fab, #f72585, #c9184a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 3px;
 }
 
-
-.sugerencias li:last-child {
-  border-bottom: none;
+.tipo::first-letter {
+  text-transform: uppercase;
 }
-
-.sugerencias li:hover {
-  background: #2a2a2a;
-}
-
-/* Nombre producto */
-.sugerencias .nombre {
-  color: #f5f5f5;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-/* Tipo */
-.sugerencias .tipo {
-  font-size: 11px;
-  color: #c9184a;
-  text-transform: capitalize;
-}
-
 
 .carrito-btn {
-  position: relative;   /* CLAVE */
+  position: relative;
   cursor: pointer;
   color: #f5f5f5;
   font-size: 20px;
@@ -229,89 +273,62 @@
   background: #c9184a;
   color: #fff;
   font-size: 11px;
-  font-weight: 600;
   min-width: 18px;
   height: 18px;
-  padding: 0 5px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  box-shadow: 0 0 0 2px #1a1a1a;
-
-  animation: pop 0.25s ease;
 }
 
-@keyframes pop {
-  0% {
-    transform: scale(0.6);
-  }
-  100% {
-    transform: scale(1);
-  }
+.desktop {
+  display: block;
 }
 
+@media (max-width: 900px) {
+  .menu-toggle {
+    display: flex;
+  }
 
-.tipo {
-  color: #888;
-  font-size: 12px;
+  .desktop {
+    display: none;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 70px); /* ocupa casi toda la pantalla */
+    background: rgba(20,20,20,0.97);
+    backdrop-filter: blur(12px);
+    flex-direction: column;
+    justify-content: center; /* centra verticalmente */
+    align-items: center;     /* centra horizontalmente */
+    gap: 30px;               /* un poco más de espacio entre items */
+    padding: 0;              /* eliminamos padding extra */
+    border-bottom: none;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  .nav-links.mobileOpen {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .nav-links a {
+    font-size: 20px; /* links más grandes para mobile */
+    font-weight: 500;
+  }
+
+  .mobile-carrito {
+    margin-top: 20px;
+    font-size: 24px;
+  }
 }
 
 </style>
-
-<script>
-import { computed } from 'vue'
-import { useCarritoStore } from '@/stores/carrito'
-import { productos } from "@/data/productos"
-
-export default {
-  methods: {
-    toHome() {
-      this.$router.push('/')
-    },
-    toCarrito() {
-      this.$router.push("/carrito")
-    },
-     irProducto(p) {
-      this.query = ""
-      this.activo = false
-      this.$router.push(`/producto/${p.tipo}/${p.slug}`)
-    },
-
-    cerrar() {
-      setTimeout(() => (this.activo = false), 150)
-    }
-  },
-   data() {
-    return {
-      query: "",
-      activo: false
-    }
-  },
-
- computed: {
-  sugerencias() {
-    if (!this.query.trim()) return []
-
-    const q = this.query.toLowerCase()
-
-    return productos
-      .filter(p =>
-        p.nombre.toLowerCase().includes(q) ||
-        p.marca?.toLowerCase().includes(q)
-      )
-      .slice(0, 6)
-  },
-   textoBadge() {
-    return this.totalItems > 9 ? '9+' : this.totalItems
-  }
-},
-  setup() {
-    const carrito = useCarritoStore()
-    // Devolver un computed para mantener la reactividad en la plantilla
-    const totalItems = computed(() => carrito.totalCantidad)
-    return { totalItems }
-  }
-}
-</script>

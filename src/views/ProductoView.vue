@@ -15,11 +15,38 @@
         <h1>{{ productoActual.nombre }}</h1>
         <p class="marca">{{ productoActual.marca }}</p>
 
-        <p class="precio">$ {{ productoActual.precio }}</p>
+         <p v-if="productoActual.precioOferta && productoActual.precioOferta > 0" class="precio-oferta">
+    $ {{ formatoPrecio(productoActual.precioOferta) }}
+    <span class="precio-original">
+      $ {{ formatoPrecio(productoActual.precio) }}
+    </span>
+  </p>
 
-        <p class="precio-sin-imp">
-          Precio sin impuestos: $ {{ precioSinImpuestos }}
-        </p>
+  <!-- Precio normal si no hay oferta -->
+  <p v-else class="precio">
+    $ {{ formatoPrecio(productoActual.precio) }}
+  </p>
+
+  <!-- Precio sin impuestos desde BD -->
+  <p v-if="productoActual.precioImpuesto" class="precio-sin-imp">
+    Precio sin impuestos: $ {{ formatoPrecio(productoActual.precioImpuesto) }}
+  </p>
+<div class="badges">
+
+  <span v-if="productoActual.medida" class="badge">
+    {{ productoActual.medida }}
+  </span>
+
+  <span v-if="productoActual.type" class="badge soft">
+    {{ productoActual.type }}
+  </span>
+
+  <span v-if="productoActual.sexo" class="badge outline">
+    {{ productoActual.sexo }}
+  </span>
+
+</div>
+
 
         <p class="descripcion">
           {{ productoActual.descripcion }}
@@ -66,14 +93,14 @@ export default {
   },
 
   methods: {
+      formatoPrecio(valor) {
+    return valor.toLocaleString('es-AR')
+  },
     agregarAlCarrito() {
-      const carrito = useCarritoStore()
-      if (!this.productoActual) {
-        console.warn('[ProductoView] Producto actual no definido')
-        return
-      }
-      carrito.agregarProducto(this.productoActual)
-    }
+    const carrito = useCarritoStore()
+    if (!this.productoActual) return
+    carrito.agregarProducto(this.productoActual)
+  }
   }
 }
 
@@ -260,6 +287,108 @@ export default {
   border-color: #e11d48;
   transform: translateX(-3px);
 }
+
+.precios {
+  margin-bottom: 18px;
+}
+
+.precio-oferta {
+  font-size: 34px;
+  font-weight: 700;
+  color: #e11d48;
+}
+
+.precio-original {
+  position: relative;
+  margin-left: 14px;
+  font-size: 18px;
+  color: rgba(255,255,255,0.5);
+  font-weight: 400;
+  padding: 0 6px;
+}
+
+/* Línea diagonal elegante */
+.precio-original::after {
+  content: "";
+  position: absolute;
+  left: -5%;
+  top: 50%;
+  width: 110%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e11d48, transparent);
+  transform: rotate(-10deg);
+  opacity: 0.8;
+}
+
+
+.precio {
+  font-size: 32px;
+  font-weight: 600;
+  color: #e11d48;
+}
+
+.precio-sin-imp {
+  font-size: 13px;
+  color: #777;
+  margin-top: 6px;
+}
+
+
+.badges {
+  display: flex;
+  gap: 14px;
+  margin: 18px 0 22px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #e5e5e5;
+  padding-bottom: 4px;
+  border-bottom: 2px solid rgba(255,255,255,0.2);
+  font-weight: 500;
+  position: relative;
+}
+
+/* Medida */
+.badge:first-child {
+  color: #fff;
+  border-color: #e11d48;
+}
+
+/* Type */
+.badge.soft {
+  color: #fca5a5;
+  border-color: rgba(225,29,72,0.6);
+}
+
+/* Sexo */
+.badge.outline {
+  color: #cfcfcf;
+  border-color: rgba(255,255,255,0.35);
+}
+
+/* Micro animación */
+.badge::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 2px;
+  background: #e11d48;
+  transition: width .3s ease;
+}
+
+.badge:hover::after {
+  width: 100%;
+}
+
+
+
 
 /* MOBILE */
 @media (max-width: 768px) {

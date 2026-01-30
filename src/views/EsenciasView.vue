@@ -1,5 +1,7 @@
 <template>
   <section class="catalogo">
+    <h2 class="titulo">Esencias</h2>
+    <p class="subtitulo">Las mejores esencias seleccionadas para vos</p>
     <!-- 🔎 BUSCADOR -->
     <div class="top-bar">
       <input
@@ -181,5 +183,22 @@ export default {
   text-align: center;
   margin-top: 60px;
   color: #777;
+}
+
+
+.titulo {
+  font-size: 30px;
+  margin-bottom: 24px;
+  color: #c9184a;
+  letter-spacing: 1px;
+}
+.subtitulo {
+  margin-top: -10px;
+  margin-bottom: 36px;
+  font-size: 14px;
+  color: #999;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-weight: 400;
 }
 </style>

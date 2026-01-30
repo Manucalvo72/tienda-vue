@@ -1,6 +1,6 @@
 <template>
   <div class="carrito">
-    <h2 class="title">Tu carrito</h2>
+    <h2 class="title">Carrito</h2>
 
     <div v-if="items.length === 0" class="empty">
       Tu carrito está vacío
@@ -9,12 +9,12 @@
     <div v-else class="content">
       <div class="items">
         <div v-for="item in items" :key="item.id" class="item-card">
-          <img v-if="item.imagen" :src="item.imagen" alt="" class="item-img" />
+          <img :src="item.imagen" class="item-img" />
 
           <div class="item-main">
             <div class="item-top">
-              <h3 class="item-name" :title="item.nombre">{{ item.nombre }}</h3>
-              <button class="remove" @click="carrito.eliminarProducto(item.id)" aria-label="Eliminar producto">✕</button>
+              <h3 class="item-name">{{ item.nombre }}</h3>
+              <button class="remove" @click="carrito.eliminarProducto(item.id)">✕</button>
             </div>
 
             <p class="item-brand" v-if="item.marca">{{ item.marca }}</p>
@@ -22,21 +22,30 @@
             <div class="item-row">
               <div class="price">
                 <span class="label">Precio</span>
-                <span class="value">{{ formatCurrency(item.precio) }}</span>
+                <span class="value">
+                  {{ formatCurrency(obtenerPrecioReal(item)) }}
+                </span>
               </div>
 
-              <div class="qty-controls" role="group" aria-label="Controles de cantidad">
+              <div class="qty-controls">
                 <button class="btn-decr" @click="carrito.restarProducto(item.id)">−</button>
-                <input class="qty-input" type="number" min="0" :value="item.cantidad" @input="onQtyInput($event, item.id)" />
+                <input
+                  class="qty-input"
+                  type="number"
+                  min="0"
+                  :value="item.cantidad"
+                  @input="onQtyInput($event, item.id)"
+                />
                 <button class="btn-incr" @click="carrito.agregarProducto(item)">+</button>
               </div>
 
               <div class="subtotal">
                 <span class="label">Subtotal</span>
-                <span class="value">{{ formatCurrency(item.precio * item.cantidad) }}</span>
+                <span class="value">
+                  {{ formatCurrency(obtenerPrecioReal(item) * item.cantidad) }}
+                </span>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -44,61 +53,102 @@
       <aside class="summary">
         <div class="summary-card">
           <h3>Resumen de compra</h3>
+
           <div class="summary-row">
             <span>Productos a comprar:</span>
             <span>{{ totalCantidad }}</span>
           </div>
+
           <div class="summary-row total">
             <span>Total:</span>
-            <span class="total-value">{{ formatCurrency(totalPrecio) }}</span>
+            <span class="total-value">
+              {{ formatCurrency(totalPrecio) }}
+            </span>
           </div>
 
-          <button class="checkout" :disabled="totalPrecio === 0">Realizar el Encargo</button>
+          <button class="checkout" :disabled="totalPrecio === 0">
+            Realizar el Encargo
+          </button>
 
-          <button class="clear" v-if="items.length" @click="clearAll">Vaciar carrito</button>
+          <button class="clear" v-if="items.length" @click="clearAll">
+            Vaciar carrito
+          </button>
         </div>
       </aside>
     </div>
-
-    <!-- Debug opcional: quitar en producción -->
-    <pre class="debug" v-if="showDebug">{{ JSON.stringify(items, null, 2) }}</pre>
   </div>
 </template>
 
+
+
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useCarritoStore } from '@/stores/carrito'
 
 const carrito = useCarritoStore()
+
 const items = computed(() => carrito.items)
-const totalPrecio = computed(() => carrito.totalPrecio)
+
 const totalCantidad = computed(() => carrito.totalCantidad)
 
-const showDebug = ref(false)
+const totalPrecio = computed(() => carrito.totalPrecio)
+
+/**
+ * Convierte precios tipo:
+ * 17.999 -> 17999
+ * "17.999" -> 17999
+ */
+function normalizarPrecio(valor) {
+  if (valor === null || valor === undefined) return 0
+
+  if (typeof valor === 'string') {
+    return Number(valor.replace(/\./g, '').replace(',', '.'))
+  }
+
+  if (typeof valor === 'number' && valor < 1000) {
+    return Math.round(valor * 1000)
+  }
+
+  return valor
+}
+
+
+/**
+ * Usa precioOferta si es válido (> 0)
+ * Caso contrario usa precio base
+ */
+function obtenerPrecioReal(item) {
+  const oferta = Number(item.precioOferta)
+
+  const precioFinal = oferta > 0
+    ? oferta
+    : Number(item.precio)
+
+  return normalizarPrecio(precioFinal)
+}
+
 
 function formatCurrency(value) {
-  try {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      maximumFractionDigits: 0
-    }).format(value)
-  } catch {
-    return `$ ${value}`
-  }
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    maximumFractionDigits: 0
+  }).format(value)
 }
 
 function onQtyInput(event, id) {
   const val = Number(event.target.value)
-  if (Number.isNaN(val)) return
-  carrito.setCantidad(id, val)
+  if (!Number.isNaN(val)) {
+    carrito.setCantidad(id, val)
+  }
 }
 
 function clearAll() {
-  const ids = carrito.items.map(i => i.id)
-  ids.forEach(id => carrito.eliminarProducto(id))
+  carrito.items.forEach(item => carrito.eliminarProducto(item.id))
 }
 </script>
+
+
 
 <style scoped>
 /* Container */
